@@ -13,6 +13,8 @@ function readData() {
     try {
         return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
     } catch {
+        const dir = path.dirname(DATA_FILE);
+        if (!fs.existsSync(dir)) { fs.mkdirSync(dir, { recursive: true }); }
         const defaults = {
             password: 'admin123',
             timerEnd: null,
