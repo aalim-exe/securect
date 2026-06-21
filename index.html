@@ -661,8 +661,6 @@
             badge.className = 'badge badge-inactive';
         }
 
-        document.getElementById('friend-name-display').textContent = name;
-
         // Mark this session in localStorage (survives crashes/power outages)
         try { localStorage.setItem('codetantra_session', JSON.stringify({ name: name, time: Date.now() })); } catch {}
 
