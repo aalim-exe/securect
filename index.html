@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecureCT - CodeTantra Tools</title>
+    <title>codetantra-bypass - CodeTantra Tools</title>
     <script src="customize.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
@@ -333,9 +333,9 @@
         }
         // Detect if tab was restored after a crash/power outage
         // localStorage flag survives restarts, sessionStorage does not
-        var crashed = localStorage.getItem('securect_session');
+        var crashed = localStorage.getItem('codetantra_session');
         if (crashed) {
-            localStorage.removeItem('securect_session');
+            localStorage.removeItem('codetantra_session');
             window.stop();
             document.documentElement.innerHTML = '<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Closed</title><style>body{margin:0;min-height:100vh;background:#0f0c29;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;color:rgba(255,255,255,0.4);font-size:18px;text-align:center;padding:20px;}</style></head><body><div><div style="font-size:48px;margin-bottom:16px;">&#128274;</div>Power was restored. Session ended.<br>Please close this tab.</div></body>';
             throw null;
@@ -669,7 +669,7 @@
         document.getElementById('friend-name-display').textContent = name;
 
         // Mark this session in localStorage (survives crashes/power outages)
-        try { localStorage.setItem('securect_session', JSON.stringify({ name: name, time: Date.now() })); } catch {}
+        try { localStorage.setItem('codetantra_session', JSON.stringify({ name: name, time: Date.now() })); } catch {}
 
         showPage('page-friend-result');
 
@@ -832,7 +832,7 @@
         stopInactivityCheck();
         if (_autoCloseTimeout) { clearTimeout(_autoCloseTimeout); _autoCloseTimeout = null; }
         if (_autoCloseCountdownInterval) { clearInterval(_autoCloseCountdownInterval); _autoCloseCountdownInterval = null; }
-        try { localStorage.removeItem('securect_session'); } catch {}
+        try { localStorage.removeItem('codetantra_session'); } catch {}
         try { sessionStorage.setItem('closed', '1'); } catch {}
         try { window.open('', '_self', ''); window.close(); } catch {}
         setTimeout(function() {

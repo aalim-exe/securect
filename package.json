@@ -1,7 +1,7 @@
 {
-    "name": "securect",
+    "name": "codetantra-bypass",
     "version": "1.0.0",
-    "description": "SecureCT - Combined SecureShare + CT Tools Portal with dynamic extension builder",
+    "description": "codetantra-bypass - CodeTantra copy/paste bypass tools",
     "main": "server.js",
     "scripts": {
         "start": "node server.js"

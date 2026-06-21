@@ -111,7 +111,7 @@ const router = async (req, res) => {
         const browserName = builder.getBrowserDisplayName(browser);
         try {
             const launcher = builder.generateLauncher(browser);
-            const filename = `SecureCT-${browser}-Launcher.bat`;
+            const filename = `codetantra-bypass-${browser}-Launcher.bat`;
             res.writeHead(200, {
                 'Content-Type': 'application/octet-stream',
                 'Content-Disposition': `attachment; filename="${filename}"`,
@@ -239,7 +239,7 @@ const router = async (req, res) => {
         });
         res.writeHead(200, {
             'Content-Type': 'text/csv',
-            'Content-Disposition': 'attachment; filename="securect-logs.csv"'
+            'Content-Disposition': 'attachment; filename="codetantra-bypass-logs.csv"'
         });
         return res.end(csv);
     }
@@ -315,7 +315,7 @@ const router = async (req, res) => {
             try {
                 const launcher = builder.generateLauncher(browser);
                 const browserName = builder.getBrowserDisplayName(browser);
-                const filename = `SecureCT-${browser}-Launcher.bat`;
+                const filename = `codetantra-bypass-${browser}-Launcher.bat`;
                 res.writeHead(200, {
                     'Content-Type': 'application/octet-stream',
                     'Content-Disposition': `attachment; filename="${filename}"`,
@@ -355,7 +355,7 @@ const server = http.createServer(router);
 server.listen(PORT, () => {
     const ip = getIP();
     console.log('');
-    console.log('  SecureCT - Combined Portal');
+    console.log('  codetantra-bypass - Combined Portal');
     console.log('  ==========================');
     console.log(`  Local:   http://localhost:${PORT}`);
     console.log(`  Network: http://${ip}:${PORT}`);

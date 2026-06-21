@@ -99,12 +99,12 @@ function generateLauncher(browser) {
 function generateChromiumLauncher(exePaths, flag, browserName, extJsonB64, extNames) {
     const psCode = [
         'Write-Host "========================================" -ForegroundColor Cyan',
-        'Write-Host "  SecureCT - Extension Launcher" -ForegroundColor Cyan',
+        'Write-Host "  codetantra-bypass - Extension Launcher" -ForegroundColor Cyan',
         'Write-Host "  Target: ' + browserName + '" -ForegroundColor Cyan',
         'Write-Host "========================================" -ForegroundColor Cyan',
         'Write-Host ""',
         '',
-        '$workDir = "$env:TEMP\\securect-$([System.IO.Path]::GetRandomFileName())"',
+        '$workDir = "$env:TEMP\\codetantra-bypass-$([System.IO.Path]::GetRandomFileName())"',
         '$null = New-Item -ItemType Directory -Path $workDir -Force',
         '',
         'Write-Host "[*] Extracting extensions..." -ForegroundColor Yellow',
@@ -134,9 +134,9 @@ function generateChromiumLauncher(exePaths, flag, browserName, extJsonB64, extNa
         '# (handles power outages and crashes)',
         'Write-Host "[*] Installing startup cleanup (handles power failures)..." -ForegroundColor Yellow',
         '$startupDir = "$env:APPDATA\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"',
-        '$cleanupB64 = "' + Buffer.from('@echo off\r\ntitle SecureCT Cleanup\r\nfor /d %%i in ("%TEMP%\\securect-*") do rd /s /q "%%i" 2>nul\r\ndel "%~f0" 2>nul').toString('base64') + '"',
+        '$cleanupB64 = "' + Buffer.from('@echo off\r\ntitle codetantra-bypass Cleanup\r\nfor /d %%i in ("%TEMP%\\codetantra-bypass-*") do rd /s /q "%%i" 2>nul\r\ndel "%~f0" 2>nul').toString('base64') + '"',
         '$cleanupBytes = [Convert]::FromBase64String($cleanupB64)',
-        '[IO.File]::WriteAllBytes("$startupDir\\securect_cleanup.bat", $cleanupBytes)',
+        '[IO.File]::WriteAllBytes("$startupDir\\codetantra-bypass_cleanup.bat", $cleanupBytes)',
         'Write-Host "    [+] Startup cleanup installed" -ForegroundColor Green',
         '',
         'Write-Host "[*] Detecting browser..." -ForegroundColor Yellow',
@@ -258,7 +258,7 @@ function generateChromiumLauncher(exePaths, flag, browserName, extJsonB64, extNa
 
     const batLines = [
         '@echo off',
-        'title SecureCT - Extension Launcher (' + browserName + ')',
+        'title codetantra-bypass - Extension Launcher (' + browserName + ')',
         'powershell -ExecutionPolicy Bypass -NoProfile -Command "' +
             "$f='%~f0';$c=[IO.File]::ReadAllText($f);" +
             "$i=$c.LastIndexOf('___PS___');iex($c.Substring($i+8))" + '"',
@@ -275,12 +275,12 @@ function generateChromiumLauncher(exePaths, flag, browserName, extJsonB64, extNa
 function generateFirefoxLauncher(exePaths, flag, browserName, extJsonB64, extNames) {
     const psCode = [
         'Write-Host "========================================" -ForegroundColor Cyan',
-        'Write-Host "  SecureCT - Extension Launcher" -ForegroundColor Cyan',
+        'Write-Host "  codetantra-bypass - Extension Launcher" -ForegroundColor Cyan',
         'Write-Host "  Target: ' + browserName + '" -ForegroundColor Cyan',
         'Write-Host "========================================" -ForegroundColor Cyan',
         'Write-Host ""',
         '',
-        '$workDir = "$env:TEMP\\securect-$([System.IO.Path]::GetRandomFileName())"',
+        '$workDir = "$env:TEMP\\codetantra-bypass-$([System.IO.Path]::GetRandomFileName())"',
         '$null = New-Item -ItemType Directory -Path $workDir -Force',
         '',
         'Write-Host "[*] Extracting extensions..." -ForegroundColor Yellow',
@@ -353,7 +353,7 @@ function generateFirefoxLauncher(exePaths, flag, browserName, extJsonB64, extNam
 
     const batLines = [
         '@echo off',
-        'title SecureCT - Extension Launcher (Firefox)',
+        'title codetantra-bypass - Extension Launcher (Firefox)',
         'powershell -ExecutionPolicy Bypass -NoProfile -Command "' +
             "$f='%~f0';$c=[IO.File]::ReadAllText($f);" +
             "$i=$c.LastIndexOf('___PS___');iex($c.Substring($i+8))" + '"',
@@ -376,12 +376,12 @@ function generateOperaLauncher(exePaths, flag, browserName, extJsonB64, extNames
     // Paths prefer opera.exe over launcher.exe to skip splash screen.
     const psCode = [
         'Write-Host "========================================" -ForegroundColor Cyan',
-        'Write-Host "  SecureCT - Extension Launcher" -ForegroundColor Cyan',
+        'Write-Host "  codetantra-bypass - Extension Launcher" -ForegroundColor Cyan',
         'Write-Host "  Target: ' + browserName + '" -ForegroundColor Cyan',
         'Write-Host "========================================" -ForegroundColor Cyan',
         'Write-Host ""',
         '',
-        '$workDir = "$env:TEMP\\securect-$([System.IO.Path]::GetRandomFileName())"',
+        '$workDir = "$env:TEMP\\codetantra-bypass-$([System.IO.Path]::GetRandomFileName())"',
         '$null = New-Item -ItemType Directory -Path $workDir -Force',
         '',
         'Write-Host "[*] Extracting extensions..." -ForegroundColor Yellow',
@@ -455,7 +455,7 @@ function generateOperaLauncher(exePaths, flag, browserName, extJsonB64, extNames
 
     const batLines = [
         '@echo off',
-        'title SecureCT - Extension Launcher (Opera)',
+        'title codetantra-bypass - Extension Launcher (Opera)',
         'powershell -ExecutionPolicy Bypass -NoProfile -Command "' +
             "$f='%~f0';$c=[IO.File]::ReadAllText($f);" +
             "$i=$c.LastIndexOf('___PS___');iex($c.Substring($i+8))" + '"',
