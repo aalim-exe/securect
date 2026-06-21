@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "CT Copy",
+  "version": "1.0",
+  "incognito": "split",
+  "description": "Unblocks copy on CodeTantra.",
+  "permissions": ["activeTab"],
+  "content_scripts": [
+    {
+      "matches": ["*://*.codetantra.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "CT Copy",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  }
+}

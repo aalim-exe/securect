@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureCT - CodeTantra Tools</title>
+    <script src="customize.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+        body { min-height: 100vh; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); display: flex; align-items: center; justify-content: center; padding: 20px; position: relative; overflow-x: hidden; }
+        body::before, body::after { content: ''; position: fixed; border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: 0; opacity: 0.12; }
+        body::before { width: 500px; height: 500px; background: #667eea; top: -150px; left: -150px; animation: float 25s ease-in-out infinite; }
+        body::after { width: 400px; height: 400px; background: #f093fb; bottom: -120px; right: -120px; animation: float 30s ease-in-out infinite reverse; }
+        @keyframes float { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(40px,-40px) scale(1.08)} 66%{transform:translate(-30px,30px) scale(0.92)} }
+        .hidden { display: none !important; }
+
+        .card {
+            background: rgba(255,255,255,0.06); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 24px;
+            padding: 48px 40px; width: 100%; max-width: 520px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5); transition: all 0.3s ease;
+            position: relative; z-index: 1; animation: cardIn 0.6s ease-out;
+        }
+        @keyframes cardIn { from { opacity:0; transform:translateY(24px) scale(0.97) } to { opacity:1; transform:translateY(0) scale(1) } }
+        .card-wide { max-width: 820px; }
+
+        h1 { font-size: 32px; font-weight: 700; color: #fff; text-align: center; letter-spacing: -0.5px; }
+        h1 span { background: linear-gradient(135deg, #f093fb, #f5576c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 40px rgba(240,147,251,0.3); }
+        .subtitle { color: rgba(255,255,255,0.5); text-align: center; margin-top: 8px; font-size: 15px; }
+
+        .role-buttons { display: flex; gap: 16px; margin-top: 36px; }
+        .role-btn {
+            flex: 1; padding: 20px; border: none; border-radius: 16px; font-size: 18px; font-weight: 600;
+            cursor: pointer; transition: all 0.25s ease; color: #fff; position: relative; overflow: hidden;
+        }
+        .role-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.3); }
+        .role-btn:active { transform: translateY(0); }
+        .role-btn .icon { font-size: 32px; display: block; margin-bottom: 10px; }
+        .role-btn .label { position: relative; z-index: 1; }
+        .btn-admin { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .btn-friend { background: linear-gradient(135deg, #11998e, #38ef7d); }
+
+        .overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px;
+        }
+        .modal {
+            background: rgba(30,27,56,0.95); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px;
+            padding: 40px 36px; width: 100%; max-width: 420px; box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            animation: modalIn 0.3s ease;
+        }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .modal h2 { color: #fff; font-size: 24px; margin-bottom: 8px; text-align: center; }
+        .modal p { color: rgba(255,255,255,0.6); text-align: center; font-size: 14px; margin-bottom: 24px; }
+
+        input, select {
+            width: 100%; padding: 14px 16px; border: 1px solid rgba(255,255,255,0.12); border-radius: 12px;
+            background: rgba(255,255,255,0.05); color: #fff; font-size: 15px; outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.25); }
+        input::placeholder { color: rgba(255,255,255,0.3); }
+        input[readonly] { opacity: 0.6; cursor: default; }
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; color: rgba(255,255,255,0.6); font-size: 13px; margin-bottom: 6px; font-weight: 500; }
+
+        .btn {
+            padding: 14px 28px; border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s ease; color: #fff;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn:active { transform: translateY(0); }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); width: 100%; }
+        .btn-primary:hover { box-shadow: 0 8px 24px rgba(102,126,234,0.4); }
+        .btn-danger { background: linear-gradient(135deg, #f5576c, #ff6a88); }
+        .btn-success { background: linear-gradient(135deg, #11998e, #38ef7d); }
+        .btn-ghost { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
+        .btn-ghost:hover { background: rgba(255,255,255,0.1); }
+        .btn-purple { background: linear-gradient(135deg, #d200ff, #764ba2); }
+        .btn-sm { padding: 10px 18px; font-size: 13px; }
+        .btn-row { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-row .btn { flex: 1; }
+
+        .error-msg { color: #f5576c; font-size: 13px; margin-top: 8px; text-align: center; display: none; }
+        .success-msg { color: #38ef7d; font-size: 13px; margin-top: 8px; text-align: center; display: none; }
+        .info-msg { color: rgba(255,255,255,0.5); font-size: 13px; margin-top: 8px; text-align: center; }
+
+        .section { margin-top: 28px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+        .section-title { color: #fff; font-size: 18px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+        .timer-display {
+            background: rgba(255,255,255,0.04); border-radius: 12px; padding: 16px 20px;
+            display: flex; align-items: center; justify-content: space-between; margin-top: 12px;
+        }
+        .timer-display .time { font-size: 28px; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; }
+        .timer-display .time.warning { color: #f093fb; }
+        .timer-display .time.expired { color: #f5576c; }
+        .timer-display .label { color: rgba(255,255,255,0.4); font-size: 13px; }
+
+        .logs-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        .logs-table th { color: rgba(255,255,255,0.4); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .logs-table td { color: rgba(255,255,255,0.8); font-size: 14px; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .logs-table tr:hover td { background: rgba(255,255,255,0.03); }
+        .logs-empty { color: rgba(255,255,255,0.3); text-align: center; padding: 24px; font-size: 14px; }
+
+        .badge {
+            display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;
+        }
+        .badge-active { background: rgba(56,239,125,0.15); color: #38ef7d; }
+        .badge-inactive { background: rgba(245,87,108,0.15); color: #f5576c; }
+        .badge-purple { background: rgba(210,0,255,0.15); color: #d200ff; }
+
+        .header-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .header-bar h1 { font-size: 24px; }
+
+        .flex-between { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .flex-between input { flex: 1; }
+
+        .unit-toggle { display: flex; gap: 0; margin-bottom: 14px; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 3px; }
+        .unit-btn { flex: 1; padding: 8px 12px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: transparent; color: rgba(255,255,255,0.4); transition: all 0.2s; }
+        .unit-btn.active { background: rgba(102,126,234,0.3); color: #fff; box-shadow: 0 2px 8px rgba(102,126,234,0.2); }
+
+        .slider-row { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+        .slider-row input[type="range"] { flex: 1; -webkit-appearance: none; appearance: none; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.12); outline: none; padding: 0; }
+        .slider-row input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); cursor: pointer; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: 0.15s; }
+        .slider-row input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+        .slider-row input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); cursor: pointer; border: 2px solid rgba(255,255,255,0.2); }
+        .slider-row input[type="number"] { width: 90px; flex: none; text-align: center; padding: 10px 8px; font-size: 18px; font-weight: 600; }
+        .selected-value { text-align: center; font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 14px; }
+        .selected-value .unit-label { font-size: 14px; font-weight: 400; color: rgba(255,255,255,0.4); }
+        .timer-actions { display: flex; gap: 10px; }
+        .timer-actions .btn { flex: 1; }
+
+        .browser-detect {
+            background: rgba(255,255,255,0.04); border-radius: 12px; padding: 20px; margin-top: 16px;
+            text-align: center;
+        }
+        .browser-detect .browser-icon { font-size: 48px; margin-bottom: 8px; }
+        .browser-detect .browser-name { color: #fff; font-size: 18px; font-weight: 600; }
+        .browser-detect .browser-extra { color: rgba(255,255,255,0.4); font-size: 13px; margin-top: 4px; }
+        .browser-detect .download-ext-btn {
+            display: inline-block; margin-top: 16px; padding: 16px 32px;
+            background: linear-gradient(135deg, #11998e, #38ef7d); color: #fff; border: none;
+            border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer;
+            transition: all 0.25s ease; text-decoration: none;
+        }
+        .browser-detect .download-ext-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(17,153,142,0.4); }
+        .browser-detect .download-ext-btn:active { transform: translateY(0); }
+        .browser-detect .incognito-badge {
+            display: inline-block; margin-top: 12px; padding: 6px 16px;
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; color: rgba(255,255,255,0.5); font-size: 12px;
+        }
+
+        .dashboard-layout { display: flex; gap: 16px; margin-top: 20px; }
+        .dash-col { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+
+        @media (max-width: 768px) {
+            .card { padding: 28px 20px; }
+            .card-wide { padding: 28px 20px; }
+            h1 { font-size: 24px; }
+            .role-buttons { flex-direction: column; gap: 12px; }
+            .dashboard-layout { flex-direction: column; }
+            .header-bar { flex-direction: column; gap: 8px; text-align: center; }
+            .timer-display { flex-direction: column; gap: 6px; text-align: center; }
+            .slider-row { flex-direction: column; gap: 10px; align-items: stretch; }
+            .slider-row input[type="number"] { width: 100%; }
+            .timer-actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== LANDING PAGE ===== -->
+<div id="page-landing" class="card">
+    <h1><span>Secure</span>CT</h1>
+    <p class="subtitle">CodeTantra Tools Portal - Select your role</p>
+    <div class="role-buttons">
+        <button class="role-btn btn-admin" onclick="showAdminLogin()">
+            <span class="icon">&#128272;</span>
+            <span class="label">Aalim</span>
+        </button>
+        <button class="role-btn btn-friend" onclick="showFriendFlow()">
+            <span class="icon">&#128101;</span>
+            <span class="label">Friend</span>
+        </button>
+    </div>
+</div>
+
+<!-- ===== ADMIN LOGIN OVERLAY ===== -->
+<div id="overlay-admin-login" class="overlay hidden">
+    <div class="modal">
+        <h2>Aalim Login</h2>
+        <p>Enter the password to access the control panel.</p>
+        <input type="password" id="admin-password-input" placeholder="Enter password" onkeydown="if(event.key==='Enter')adminLogin()">
+        <div class="error-msg" id="admin-password-error">Incorrect password. Try again.</div>
+        <div class="btn-row">
+            <button class="btn btn-ghost" onclick="closeOverlay('overlay-admin-login')">Back</button>
+            <button class="btn btn-primary" onclick="adminLogin()">Login</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== ADMIN DASHBOARD ===== -->
+<div id="page-admin" class="card card-wide hidden">
+    <div class="header-bar">
+        <h1>&#128272; Aalim Panel</h1>
+        <span class="badge badge-active" id="admin-status-badge">Active</span>
+    </div>
+    <p class="subtitle" style="text-align:left;">Manage session timer, view logs, and control CT Tools access.</p>
+
+    <div class="dashboard-layout">
+        <div class="dash-col">
+            <!-- Timer Control -->
+            <div class="section" style="margin-top:0;padding-top:0;border-top:none;">
+                <div class="section-title">&#9200; Timer Control</div>
+                <div class="unit-toggle" id="unit-toggle">
+                    <button class="unit-btn active" data-unit="minutes" onclick="setUnit('minutes')">Minutes</button>
+                    <button class="unit-btn" data-unit="seconds" onclick="setUnit('seconds')">Seconds</button>
+                </div>
+                <div class="slider-row">
+                    <input type="range" id="timer-slider" min="1" max="60" value="30" oninput="syncSliderToInput()">
+                    <input type="number" id="timer-input" min="1" max="1440" value="30" oninput="syncInputToSlider()">
+                </div>
+                <div class="selected-value" id="selected-value">30 <span class="unit-label">minutes</span></div>
+                <div class="timer-actions">
+                    <button class="btn btn-success btn-sm" onclick="setTimer()">Set Timer</button>
+                    <button class="btn btn-danger btn-sm" onclick="clearTimer()">Clear</button>
+                </div>
+                <div class="timer-display">
+                    <span class="label">Status</span>
+                    <span class="time" id="timer-display-value">Not set</span>
+                </div>
+                <div class="info-msg" id="timer-feedback"></div>
+            </div>
+
+        </div>
+
+        <div class="dash-col">
+            <!-- Access Logs -->
+            <div class="section" style="margin-top:0;padding-top:0;border-top:none;">
+                <div class="section-title">&#128203; Access Logs</div>
+                <div style="overflow-x:auto;">
+                    <table class="logs-table">
+                        <thead><tr><th>Name</th><th>Browser</th><th>Time</th></tr></thead>
+                        <tbody id="logs-body"></tbody>
+                    </table>
+                </div>
+                <div class="logs-empty" id="logs-empty">No activity yet.</div>
+                <div style="margin-top:12px;">
+                    <button class="btn btn-ghost btn-sm" onclick="clearLogs()">Clear</button>
+                    <button class="btn btn-ghost btn-sm" onclick="refreshLogs()" style="margin-left:8px;">Refresh</button>
+                    <button class="btn btn-ghost btn-sm" onclick="exportLogs()" style="margin-left:8px;">Export CSV</button>
+                </div>
+            </div>
+
+            <!-- Friend Activity -->
+            <div class="section">
+                <div class="section-title">&#128101; Friend Activity</div>
+                <div id="friend-log"><p class="info-msg">No friends yet</p></div>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.06);">
+        <button class="btn btn-ghost" onclick="adminLogout()" style="width:100%;">&#8592; Back to Home</button>
+    </div>
+</div>
+
+<!-- ===== FRIEND FLOW ===== -->
+<div id="page-friend" class="card hidden">
+    <h1>&#128101; CT Tools Download</h1>
+    <p class="subtitle">Enter your name to get the CodeTantra Copy & Paste extensions.</p>
+
+    <div class="input-group" style="margin-top:24px;">
+        <label>Your Name</label>
+        <input type="text" id="friend-name-input" placeholder="Enter your name" onkeydown="if(event.key==='Enter')friendContinue()">
+    </div>
+    <div class="error-msg" id="friend-name-error">Please enter your name.</div>
+
+    <button class="btn btn-primary" onclick="friendContinue()" style="margin-top:8px;">Continue</button>
+</div>
+
+<!-- ===== FRIEND RESULT (with browser detection + download) ===== -->
+<div id="page-friend-result" class="card hidden">
+    <div class="header-bar">
+        <h1>&#128230; Extensions Ready</h1>
+        <span class="badge badge-active" id="friend-status-badge">Active</span>
+    </div>
+    <p class="subtitle" style="text-align:left;">Hi <strong id="friend-name-display" style="color:#fff;"></strong>, your browser has been detected.</p>
+
+    <div class="browser-detect" id="browser-detect-box">
+        <div class="browser-icon" id="browser-icon">&#127760;</div>
+        <div class="browser-name" id="browser-name-display">Detecting...</div>
+        <div class="browser-extra" id="browser-extra">Analyzing your browser to build the right extension package</div>
+        <div class="incognito-badge">&#128274; Launches in Incognito / Private mode</div>
+        <button class="download-ext-btn" id="download-ext-btn" onclick="downloadExtension()">
+            &#11088; Download Extension Launcher
+        </button>
+        <p class="info-msg" style="margin-top:12px;" id="download-hint">
+            Downloads a launcher that opens your browser in incognito mode with CT Copy & CT Paste extensions pre-loaded
+        </p>
+    </div>
+
+    <div class="timer-display" style="margin-top:16px;">
+        <span class="label">Session Timer</span>
+        <span class="time" id="friend-timer-display">Checking...</span>
+    </div>
+
+    <button class="btn btn-ghost" onclick="friendBack()" style="width:100%;margin-top:16px;">&#8592; Back</button>
+</div>
+
+<!-- ===== TIMER EXPIRED OVERLAY ===== -->
+<div id="overlay-timer-expired" class="overlay hidden">
+    <div class="modal">
+        <div style="font-size:48px;text-align:center;margin-bottom:12px;">&#9200;</div>
+        <h2 id="expired-title">Time Expired</h2>
+        <p id="expired-message">The session timer has expired.<br>Please ask the admin to reset the timer.</p>
+        <div id="expired-countdown" class="hidden" style="text-align:center;margin-top:16px;font-size:13px;color:rgba(255,255,255,0.4);">Closing in <span id="expired-countdown-value">5</span>s</div>
+        <button class="btn btn-primary" id="expired-ok-btn" onclick="closeOverlay('overlay-timer-expired')" style="width:100%;margin-top:8px;">OK</button>
+    </div>
+</div>
+
+<script>
+    const CFG = (k, def) => (window.SECURESHARE_CONFIG && k in window.SECURESHARE_CONFIG) ? window.SECURESHARE_CONFIG[k] : def;
+    const API_BASE = '';
+
+    try {
+        if (sessionStorage.getItem('closed') === '1') {
+            window.stop();
+            document.documentElement.innerHTML = '<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Closed</title><style>body{margin:0;min-height:100vh;background:#0f0c29;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;color:rgba(255,255,255,0.4);font-size:18px;text-align:center;padding:20px;}</style></head><body><div><div style="font-size:48px;margin-bottom:16px;">&#128274;</div>Session ended. Please close this tab.</div></body>';
+            throw null;
+        }
+        // Detect if tab was restored after a crash/power outage
+        // localStorage flag survives restarts, sessionStorage does not
+        var crashed = localStorage.getItem('securect_session');
+        if (crashed) {
+            localStorage.removeItem('securect_session');
+            window.stop();
+            document.documentElement.innerHTML = '<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Closed</title><style>body{margin:0;min-height:100vh;background:#0f0c29;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;color:rgba(255,255,255,0.4);font-size:18px;text-align:center;padding:20px;}</style></head><body><div><div style="font-size:48px;margin-bottom:16px;">&#128274;</div>Power was restored. Session ended.<br>Please close this tab.</div></body>';
+            throw null;
+        }
+    } catch {}
+    let timerUnit = 'minutes';
+    let adminAuthenticated = false;
+    let friendName = '';
+    let currentToken = null;
+    let detectedBrowser = null;
+    let _autoCloseActive = false;
+
+    async function api(path, options = {}) {
+        const resp = await fetch(API_BASE + path, {
+            headers: { 'Content-Type': 'application/json' },
+            ...options
+        });
+        if (!resp.ok && resp.status !== 401 && resp.status !== 403) {
+            throw new Error('API error: ' + resp.status);
+        }
+        return resp.json();
+    }
+
+    function formatTime(ts) { return new Date(ts).toLocaleString(); }
+
+    function formatDuration(ms) {
+        if (ms <= 0) return 'Expired';
+        const totalSec = Math.floor(ms / 1000);
+        const h = Math.floor(totalSec / 3600);
+        const m = Math.floor((totalSec % 3600) / 60);
+        const s = totalSec % 60;
+        const parts = [];
+        if (h > 0) parts.push(h + 'h');
+        if (m > 0) parts.push(m + 'm');
+        parts.push(s + 's');
+        return parts.join(' ');
+    }
+
+    function escapeHtml(str) {
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
+
+    function closeOverlay(id) { document.getElementById(id).classList.add('hidden'); }
+
+    function showPage(pageId) {
+        document.querySelectorAll('#page-landing, #page-admin, #page-friend, #page-friend-result').forEach(el => el.classList.add('hidden'));
+        document.getElementById(pageId).classList.remove('hidden');
+    }
+
+    // ===== ADMIN FLOW =====
+    function showAdminLogin() {
+        document.getElementById('admin-password-input').value = '';
+        document.getElementById('admin-password-error').style.display = 'none';
+        document.getElementById('overlay-admin-login').classList.remove('hidden');
+        document.getElementById('admin-password-input').focus();
+    }
+
+    async function adminLogin() {
+        const input = document.getElementById('admin-password-input');
+        const error = document.getElementById('admin-password-error');
+        try {
+            const result = await api('/api/login', {
+                method: 'POST',
+                body: JSON.stringify({ password: input.value })
+            });
+            if (result.success) {
+                closeOverlay('overlay-admin-login');
+                openAdminPanel();
+            } else {
+                throw new Error('Wrong password');
+            }
+        } catch {
+            error.style.display = 'block';
+            input.value = '';
+            input.focus();
+        }
+    }
+
+    function openAdminPanel() {
+        adminAuthenticated = true;
+        cancelAutoClose();
+        showPage('page-admin');
+        refreshTimerDisplay();
+        refreshLogs();
+        updateFriends();
+        window._timerInterval = setInterval(refreshTimerDisplay, 1000);
+        window._logsInterval = setInterval(refreshLogs, 3000);
+        window._friendsInterval = setInterval(updateFriends, 5000);
+    }
+
+    function adminLogout() {
+        adminAuthenticated = false;
+        clearInterval(window._timerInterval);
+        clearInterval(window._logsInterval);
+        clearInterval(window._friendsInterval);
+        cancelAutoClose();
+        showPage('page-landing');
+        startInactivityCheck();
+    }
+
+    // ===== TIMER =====
+    function setUnit(unit) {
+        timerUnit = unit;
+        document.querySelectorAll('.unit-btn').forEach(b => b.classList.toggle('active', b.dataset.unit === unit));
+        const slider = document.getElementById('timer-slider');
+        const input = document.getElementById('timer-input');
+        if (unit === 'minutes') {
+            slider.min = 1; slider.max = 60; slider.value = Math.min(parseInt(slider.value) || 30, 60);
+            input.min = 1; input.max = 1440;
+            slider.value = parseInt(input.value) || 30;
+        } else {
+            slider.min = 5; slider.max = 3600; slider.step = 5;
+            input.min = 5; input.max = 36000;
+            const secs = (parseInt(input.value) || 30) * 60;
+            input.value = Math.min(secs, 36000);
+            slider.value = Math.min(secs, 3600);
+        }
+        updateSelectedValue();
+    }
+
+    function syncSliderToInput() {
+        document.getElementById('timer-input').value = parseInt(document.getElementById('timer-slider').value);
+        updateSelectedValue();
+    }
+
+    function syncInputToSlider() {
+        const val = parseInt(document.getElementById('timer-input').value);
+        const slider = document.getElementById('timer-slider');
+        if (!isNaN(val)) {
+            if (val < parseInt(slider.min)) slider.value = slider.min;
+            else if (val > parseInt(slider.max)) slider.value = slider.max;
+            else slider.value = val;
+        }
+        updateSelectedValue();
+    }
+
+    function updateSelectedValue() {
+        const val = parseInt(document.getElementById('timer-input').value);
+        const el = document.getElementById('selected-value');
+        if (isNaN(val) || val < 1) { el.innerHTML = '&mdash;'; return; }
+        el.innerHTML = val + ' <span class="unit-label">' + timerUnit + '</span>';
+    }
+
+    async function setTimer() {
+        const raw = parseInt(document.getElementById('timer-input').value, 10);
+        if (!raw || raw < 1) {
+            document.getElementById('timer-feedback').textContent = 'Enter a valid number.';
+            document.getElementById('timer-feedback').style.color = '#f5576c';
+            return;
+        }
+        const minutes = timerUnit === 'seconds' ? raw / 60 : raw;
+        await api('/api/timer', {
+            method: 'POST',
+            body: JSON.stringify({ minutes: minutes })
+        });
+        refreshTimerDisplay();
+        const fb = document.getElementById('timer-feedback');
+        fb.textContent = 'Timer set for ' + raw + ' ' + timerUnit + '.';
+        fb.style.color = '#38ef7d';
+    }
+
+    async function clearTimer() {
+        await api('/api/timer', { method: 'DELETE' });
+        refreshTimerDisplay();
+        const fb = document.getElementById('timer-feedback');
+        fb.textContent = 'Timer cleared.';
+        fb.style.color = 'rgba(255,255,255,0.5)';
+    }
+
+    async function refreshTimerDisplay() {
+        try {
+            const data = await api('/api/timer');
+            const el = document.getElementById('timer-display-value');
+            const badge = document.getElementById('admin-status-badge');
+            if (!data.end) {
+                el.textContent = 'Not set';
+                el.className = 'time';
+                badge.textContent = 'Inactive';
+                badge.className = 'badge badge-inactive';
+                document.getElementById('timer-feedback').textContent = '';
+                return;
+            }
+            const remaining = data.remaining;
+            if (remaining <= 0) {
+                el.textContent = 'Expired';
+                el.className = 'time expired';
+                badge.textContent = 'Expired';
+                badge.className = 'badge badge-inactive';
+            } else if (remaining < 300000) {
+                el.textContent = formatDuration(remaining);
+                el.className = 'time warning';
+                badge.textContent = 'Active';
+                badge.className = 'badge badge-active';
+            } else {
+                el.textContent = formatDuration(remaining);
+                el.className = 'time';
+                badge.textContent = 'Active';
+                badge.className = 'badge badge-active';
+            }
+        } catch {}
+    }
+
+    // ===== LOGS =====
+    async function refreshLogs() {
+        try {
+            const logs = await api('/api/logs');
+            const tbody = document.getElementById('logs-body');
+            const empty = document.getElementById('logs-empty');
+            tbody.innerHTML = '';
+            if (logs.length === 0) {
+                empty.style.display = 'block';
+                return;
+            }
+            empty.style.display = 'none';
+            logs.slice().reverse().forEach(log => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + escapeHtml(log.name) + '</td><td>' + escapeHtml(log.browser) + '</td><td>' + formatTime(log.timestamp) + '</td>';
+                tbody.appendChild(tr);
+            });
+        } catch {}
+    }
+
+    async function clearLogs() {
+        if (confirm('Clear all access logs?')) {
+            await api('/api/logs', { method: 'DELETE' });
+            refreshLogs();
+        }
+    }
+
+    function exportLogs() { window.open(API_BASE + '/api/logs/export', '_blank'); }
+
+    // ===== FRIEND ACTIVITY (Aalim) =====
+    async function updateFriends() {
+        if (!adminAuthenticated) return;
+        try {
+            const resp = await fetch('/api/friends', {
+                headers: { 'X-Admin-Token': 'admin' }
+            });
+            if (!resp.ok) return;
+            const list = await resp.json();
+            const log = document.getElementById('friend-log');
+            if (!list || !list.length) {
+                log.innerHTML = '<p class="info-msg">No friends yet</p>';
+                return;
+            }
+            log.innerHTML = list.map(f =>
+                '<div style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:6px;font-size:13px;margin-bottom:4px;">' +
+                '<span style="color:#e0e0e0;">' + escHtml(f.name) + '</span>' +
+                '<span style="color:rgba(255,255,255,0.4);">' + escHtml(f.time || '') + '</span>' +
+                '</div>'
+            ).join('');
+        } catch {}
+    }
+
+    function escHtml(s) {
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
+
+    // ===== GENERATE DOWNLOAD LINK =====
+    async function generateLink() {
+        try {
+            const d = await api('/api/generate-token', { method: 'POST' });
+            if (!d.token) return;
+            currentToken = d.token;
+            const url = window.location.origin + '/api/download?token=' + d.token;
+            document.getElementById('link-url').value = url;
+            document.getElementById('link-box').classList.remove('hidden');
+        } catch {}
+    }
+
+    function copyLink() {
+        const input = document.getElementById('link-url');
+        input.select();
+        document.execCommand('copy');
+        alert('Link copied to clipboard!');
+    }
+
+    // ===== FRIEND FLOW =====
+    async function showFriendFlow() {
+        try {
+            const timer = await api('/api/timer');
+            if (!timer.end) {
+                startAutoClose('Timer Not Started', '&#128100; Ask <strong>Aalim</strong> to start the session timer.', CFG('autoCloseNoTimer', 10000));
+                return;
+            }
+            if (timer.remaining <= 0) {
+                startAutoClose('Timer Expired', '&#128100; Ask <strong>Aalim</strong> to extend the session timer.', 10000);
+                return;
+            }
+        } catch {
+            showExpiredOverlay('Connection Error', 'Cannot connect to the server.<br>Make sure the server is running and try again.');
+            return;
+        }
+        showPage('page-friend');
+        document.getElementById('friend-name-input').focus();
+    }
+
+    async function friendContinue() {
+        const name = document.getElementById('friend-name-input').value.trim();
+        if (!name) {
+            document.getElementById('friend-name-error').style.display = 'block';
+            return;
+        }
+        document.getElementById('friend-name-error').style.display = 'none';
+        friendName = name;
+
+        await api('/api/logs', {
+            method: 'POST',
+            body: JSON.stringify({ name, userAgent: navigator.userAgent })
+        });
+
+        showFriendResult(name);
+    }
+
+    async function showFriendResult(name) {
+        const timer = await api('/api/timer');
+        const remaining = timer.end ? timer.remaining : 0;
+        const badge = document.getElementById('friend-status-badge');
+        if (remaining > 0) {
+            badge.textContent = 'Active';
+            badge.className = 'badge badge-active';
+        } else {
+            badge.textContent = 'Expired';
+            badge.className = 'badge badge-inactive';
+        }
+
+        document.getElementById('friend-name-display').textContent = name;
+
+        // Mark this session in localStorage (survives crashes/power outages)
+        try { localStorage.setItem('securect_session', JSON.stringify({ name: name, time: Date.now() })); } catch {}
+
+        showPage('page-friend-result');
+
+        startFriendTimerCheck();
+        startInactivityCheck();
+
+        // Detect browser server-side
+        try {
+            const resp = await fetch('/api/detect-browser');
+            const info = await resp.json();
+            detectedBrowser = info;
+            updateBrowserUI(info);
+        } catch {
+            // Fallback client-side detection
+            const ua = navigator.userAgent;
+            const browser = detectBrowserClient(ua);
+            detectedBrowser = { browser, name: browser };
+            updateBrowserUI({ browser, name: browser, userAgent: ua });
+        }
+    }
+
+    function detectBrowserClient(ua) {
+        if (ua.includes('Edg/') || ua.includes('Edge/')) return 'Microsoft Edge';
+        if (ua.includes('OPR') || ua.includes('Opera')) return 'Opera';
+        if (ua.includes('Chrome/') && !ua.includes('Edg/')) return 'Google Chrome';
+        if (ua.includes('Firefox/')) return 'Mozilla Firefox';
+        if (ua.includes('Safari/') && !ua.includes('Chrome/')) return 'Safari';
+        return 'Chromium-based Browser';
+    }
+
+    function updateBrowserUI(info) {
+        const browserName = info.name || info.browser;
+        const browserKey = info.browser || 'unknown';
+        const iconMap = {
+            'chrome': '&#120572;',
+            'edge': '&#120573;',
+            'firefox': '&#128293;',
+            'opera': '&#9675;',
+            'safari': '&#128032;'
+        };
+        document.getElementById('browser-icon').innerHTML = iconMap[browserKey] || '&#127760;';
+        document.getElementById('browser-name-display').textContent = browserName;
+        document.getElementById('browser-extra').textContent =
+            'Detected ' + browserName + ' - building compatible extension package with incognito support';
+    }
+
+    function downloadExtension() {
+        const btn = document.getElementById('download-ext-btn');
+        btn.textContent = 'Building & Downloading...';
+        btn.style.pointerEvents = 'none';
+
+        stopFriendTimerCheck();
+        startAutoClose('Download Started', 'Your download has started.<br>This tab will close shortly.', 3000);
+
+        // Use server-side build endpoint which detects browser from UA
+        window.location.href = '/api/build-ext';
+    }
+
+    // ===== FRIEND TIMER CHECK =====
+    let _friendTimerInterval = null;
+    let _autoCloseTimeout = null;
+    let _autoCloseCountdownInterval = null;
+    let _lastActivityTime = Date.now();
+    let _inactivityInterval = null;
+
+    function startFriendTimerCheck() {
+        stopFriendTimerCheck();
+        _friendTimerInterval = setInterval(async () => {
+            try {
+                const timer = await api('/api/timer');
+                const el = document.getElementById('friend-timer-display');
+                if (!timer.end) {
+                    el.textContent = 'Not set';
+                    el.className = 'time';
+                    return;
+                }
+                if (timer.remaining <= 0) {
+                    el.textContent = 'Expired';
+                    el.className = 'time expired';
+                    stopFriendTimerCheck();
+                    startAutoClose('Timer Expired', '&#128100; Ask <strong>Aalim</strong> to extend the session timer.', 10000);
+                } else {
+                    el.textContent = formatDuration(timer.remaining);
+                    el.className = timer.remaining < 300000 ? 'time warning' : 'time';
+                }
+            } catch {}
+        }, 1000);
+    }
+
+    function stopFriendTimerCheck() {
+        if (_friendTimerInterval) {
+            clearInterval(_friendTimerInterval);
+            _friendTimerInterval = null;
+        }
+    }
+
+    function startAutoClose(title, message, durationMs) {
+        cancelAutoClose();
+        _autoCloseActive = true;
+        document.getElementById('expired-title').textContent = title;
+        document.getElementById('expired-message').innerHTML = message;
+        document.getElementById('overlay-timer-expired').classList.remove('hidden');
+        document.getElementById('expired-ok-btn').style.display = 'none';
+        if (durationMs) {
+            const countdownEl = document.getElementById('expired-countdown');
+            const countdownValue = document.getElementById('expired-countdown-value');
+            countdownEl.classList.remove('hidden');
+            let remaining = Math.round(durationMs / 1000);
+            countdownValue.textContent = remaining;
+            _autoCloseCountdownInterval = setInterval(() => {
+                remaining--;
+                if (remaining >= 0) countdownValue.textContent = remaining;
+            }, 1000);
+            _autoCloseTimeout = setTimeout(() => {
+                clearInterval(_autoCloseCountdownInterval);
+                closeTab();
+            }, durationMs);
+        }
+    }
+
+    function cancelAutoClose() {
+        _autoCloseActive = false;
+        stopInactivityCheck();
+        if (_autoCloseTimeout) { clearTimeout(_autoCloseTimeout); _autoCloseTimeout = null; }
+        if (_autoCloseCountdownInterval) { clearInterval(_autoCloseCountdownInterval); _autoCloseCountdownInterval = null; }
+        document.getElementById('expired-countdown').classList.add('hidden');
+        document.getElementById('expired-ok-btn').style.display = '';
+        document.getElementById('overlay-timer-expired').classList.add('hidden');
+    }
+
+    function resetActivity() { _lastActivityTime = Date.now(); }
+
+    function startInactivityCheck() {
+        stopInactivityCheck();
+        _lastActivityTime = Date.now();
+        var events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+        events.forEach(function(e) { document.addEventListener(e, resetActivity); });
+        _inactivityInterval = setInterval(function() {
+            var timeout = CFG('inactivityTimeout', 10000);
+            if (Date.now() - _lastActivityTime >= timeout) {
+                cancelAutoClose();
+                startAutoClose('Auto Close', 'No activity detected for ' + (timeout/1000) + ' seconds.<br>Closing this tab.', 5000);
+                stopInactivityCheck();
+            }
+        }, 1000);
+    }
+
+    function stopInactivityCheck() {
+        if (_inactivityInterval) {
+            clearInterval(_inactivityInterval);
+            _inactivityInterval = null;
+        }
+        var events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+        events.forEach(function(e) { document.removeEventListener(e, resetActivity); });
+    }
+
+    function closeTab() {
+        _autoCloseActive = false;
+        stopFriendTimerCheck();
+        stopInactivityCheck();
+        if (_autoCloseTimeout) { clearTimeout(_autoCloseTimeout); _autoCloseTimeout = null; }
+        if (_autoCloseCountdownInterval) { clearInterval(_autoCloseCountdownInterval); _autoCloseCountdownInterval = null; }
+        try { localStorage.removeItem('securect_session'); } catch {}
+        try { sessionStorage.setItem('closed', '1'); } catch {}
+        try { window.open('', '_self', ''); window.close(); } catch {}
+        setTimeout(function() {
+            window.stop();
+            document.documentElement.innerHTML = '<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Closed</title><style>body{margin:0;min-height:100vh;background:#0f0c29;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;color:rgba(255,255,255,0.4);font-size:18px;text-align:center;padding:20px;}</style></head><body><div><div style="font-size:48px;margin-bottom:16px;">&#128274;</div>Session ended. Please close this tab.</div></body>';
+        }, 200);
+    }
+
+    function showExpiredOverlay(title, message) {
+        document.getElementById('expired-title').textContent = title;
+        document.getElementById('expired-message').innerHTML = message;
+        document.getElementById('expired-countdown').classList.add('hidden');
+        document.getElementById('overlay-timer-expired').classList.remove('hidden');
+    }
+
+    function friendBack() {
+        stopFriendTimerCheck();
+        cancelAutoClose();
+        showPage('page-landing');
+        startInactivityCheck();
+    }
+
+    document.querySelectorAll('.overlay').forEach(el => {
+        el.addEventListener('click', function(e) {
+            if (e.target === this && !_autoCloseActive) this.classList.add('hidden');
+        });
+    });
+
+    window.onload = function() {
+        updateSelectedValue();
+        startInactivityCheck();
+    };
+</script>
+</body>
+</html>

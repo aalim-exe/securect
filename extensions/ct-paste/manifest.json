@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "CT Paste",
+  "version": "1.0",
+  "incognito": "split",
+  "description": "Injects clipboard code directly into CodeTantra editor.",
+  "permissions": ["activeTab", "clipboardRead"],
+  "content_scripts": [
+    {
+      "matches": ["*://*.codetantra.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "CT Paste - Inject code into editor",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  }
+}

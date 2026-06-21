@@ -1,0 +1,9 @@
+{
+    "name": "securect",
+    "version": "1.0.0",
+    "description": "SecureCT - Combined SecureShare + CT Tools Portal with dynamic extension builder",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    }
+}
