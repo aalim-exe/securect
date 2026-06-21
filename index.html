@@ -284,23 +284,18 @@
 <!-- ===== FRIEND RESULT (with browser detection + download) ===== -->
 <div id="page-friend-result" class="card hidden">
     <div class="header-bar">
-        <h1>&#128230; Extensions Ready</h1>
+        <h1>Extensions Ready</h1>
         <span class="badge badge-active" id="friend-status-badge">Active</span>
     </div>
-    <p class="subtitle" style="text-align:left;">Hi <strong id="friend-name-display" style="color:#fff;"></strong>, your browser has been detected.</p>
 
     <div class="browser-detect" id="browser-detect-box">
         <div class="browser-icon" id="browser-icon">&#127760;</div>
         <div class="browser-name" id="browser-name-display">Detecting...</div>
-        <div class="browser-extra" id="browser-extra">Analyzing your browser to build the right extension package</div>
-        <div class="incognito-badge">&#128274; Launches in Incognito / Private mode</div>
-        <button class="download-ext-btn" id="download-ext-btn" onclick="downloadExtension()">
-            &#11088; Download Extension Launcher
-        </button>
-        <p class="info-msg" style="margin-top:12px;" id="download-hint">
-            Downloads a launcher that opens your browser in incognito mode with CT Copy & CT Paste extensions pre-loaded
-        </p>
     </div>
+
+    <button class="download-ext-btn" id="download-ext-btn" onclick="downloadExtension()">
+        &#11088; Download
+    </button>
 
     <div class="timer-display" style="margin-top:16px;">
         <span class="label">Session Timer</span>
@@ -865,6 +860,12 @@
         updateSelectedValue();
         startInactivityCheck();
     };
+
+    // Add credit footer to all pages
+    var credit = document.createElement('div');
+    credit.style.cssText = 'position:fixed;bottom:8px;right:12px;font-size:11px;color:rgba(255,255,255,0.2);z-index:999;font-family:system-ui,sans-serif;pointer-events:none;';
+    credit.textContent = '@aalim-exe';
+    document.body.appendChild(credit);
 </script>
 </body>
 </html>
