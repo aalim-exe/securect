@@ -263,7 +263,10 @@
     </div>
 
     <div style="margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.06);">
-        <button class="btn btn-ghost" onclick="adminLogout()" style="width:100%;">&#8592; Back to Home</button>
+        <div style="display:flex;gap:10px;">
+            <button class="btn btn-danger" id="kill-switch-btn" onclick="toggleKillSwitch()" style="flex:1;">&#128308; Kill Switch (ON)</button>
+            <button class="btn btn-ghost" onclick="adminLogout()" style="flex:1;">&#8592; Back to Home</button>
+        </div>
     </div>
 </div>
 
@@ -416,6 +419,40 @@
         }
     }
 
+    async function toggleKillSwitch() {
+        const btn = document.getElementById('kill-switch-btn');
+        try {
+            const status = await api('/api/kill');
+            if (status.killed) {
+                // currently killed → revive
+                await api('/api/kill', { method: 'DELETE' });
+                btn.textContent = '\u{1F534} Kill Switch (ON)';
+                btn.className = 'btn btn-danger';
+                location.reload();
+            } else {
+                // currently alive → kill
+                await api('/api/kill', { method: 'POST' });
+                btn.textContent = '\u{1F7E2} Revived (OFF)';
+                btn.className = 'btn btn-success';
+                location.reload();
+            }
+        } catch {}
+    }
+
+    async function checkKillStatus() {
+        try {
+            const status = await api('/api/kill');
+            const btn = document.getElementById('kill-switch-btn');
+            if (status.killed) {
+                btn.textContent = '\u{1F7E2} Revive (OFF)';
+                btn.className = 'btn btn-success';
+            } else {
+                btn.textContent = '\u{1F534} Kill Switch (ON)';
+                btn.className = 'btn btn-danger';
+            }
+        } catch {}
+    }
+
     function openAdminPanel() {
         adminAuthenticated = true;
         cancelAutoClose();
@@ -423,6 +460,7 @@
         refreshTimerDisplay();
         refreshLogs();
         updateFriends();
+        checkKillStatus();
         window._timerInterval = setInterval(refreshTimerDisplay, 1000);
         window._logsInterval = setInterval(refreshLogs, 3000);
         window._friendsInterval = setInterval(updateFriends, 5000);
@@ -621,6 +659,10 @@
     async function showFriendFlow() {
         try {
             const timer = await api('/api/timer');
+            if (timer.killed) {
+                startAutoClose('Service Disabled', '&#128308; <strong>Aalim</strong> has disabled the service.<br>Please try again later.', 10000);
+                return;
+            }
             if (!timer.end) {
                 startAutoClose('Timer Not Started', '&#128100; Ask <strong>Aalim</strong> to start the session timer.', CFG('autoCloseNoTimer', 10000));
                 return;
@@ -741,6 +783,13 @@
             try {
                 const timer = await api('/api/timer');
                 const el = document.getElementById('friend-timer-display');
+                if (timer.killed) {
+                    el.textContent = 'Disabled';
+                    el.className = 'time expired';
+                    stopFriendTimerCheck();
+                    startAutoClose('Service Disabled', '&#128308; <strong>Aalim</strong> has disabled the service.<br>Please try again later.', 5000);
+                    return;
+                }
                 if (!timer.end) {
                     el.textContent = 'Not set';
                     el.className = 'time';
