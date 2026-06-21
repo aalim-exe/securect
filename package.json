@@ -1,7 +1,7 @@
 {
-    "name": "codetantra-bypass",
+    "name": "codetantra-copypaste",
     "version": "1.0.0",
-    "description": "codetantra-bypass - CodeTantra copy/paste bypass tools",
+    "description": "codetantra-copypaste - CodeTantra copy/paste bypass tools",
     "main": "server.js",
     "scripts": {
         "start": "node server.js"
