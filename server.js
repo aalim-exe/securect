@@ -23,7 +23,8 @@ function readData() {
             sessions: {},
             timerActive: false,
             friends: [],
-            tokens: {}
+            tokens: {},
+            nameRestriction: { enabled: false, names: [] }
         };
         fs.writeFileSync(DATA_FILE, JSON.stringify(defaults, null, 2));
         return defaults;
@@ -199,6 +200,14 @@ const router = async (req, res) => {
             return jsonResponse(res, 400, { success: false, error: 'Missing name' });
         }
         const data = readData();
+        // Check name restriction
+        const r = data.nameRestriction || { enabled: false, names: [] };
+        if (r.enabled && r.names.length > 0) {
+            const inputName = body.name.trim().toLowerCase();
+            if (!r.names.includes(inputName)) {
+                return jsonResponse(res, 403, { success: false, error: 'Name not in allowed list', restricted: true });
+            }
+        }
         const browser = body.browser || builder.detectBrowser(ua);
         const browserName = body.browser || builder.getBrowserDisplayName(browser);
         data.logs.push({
@@ -242,6 +251,25 @@ const router = async (req, res) => {
             'Content-Disposition': 'attachment; filename="codetantra-copypaste-logs.csv"'
         });
         return res.end(csv);
+    }
+
+    // --- Name Restriction: Get ---
+    if (method === 'GET' && pathname === '/api/name-restriction') {
+        const data = readData();
+        const r = data.nameRestriction || { enabled: false, names: [] };
+        return jsonResponse(res, 200, r);
+    }
+
+    // --- Name Restriction: Set ---
+    if (method === 'POST' && pathname === '/api/name-restriction') {
+        const body = await parseBody(req);
+        const data = readData();
+        data.nameRestriction = {
+            enabled: !!body.enabled,
+            names: Array.isArray(body.names) ? body.names.map(n => n.trim().toLowerCase()).filter(Boolean) : []
+        };
+        writeData(data);
+        return jsonResponse(res, 200, { success: true, ...data.nameRestriction });
     }
 
     // --- CT Portal: Register Admin ---

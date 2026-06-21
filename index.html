@@ -275,6 +275,23 @@
                 <div class="section-title">&#128101; Friend Activity</div>
                 <div id="friend-log"><p class="info-msg">No friends yet</p></div>
             </div>
+
+            <!-- Name Restriction -->
+            <div class="section">
+                <div class="section-title">&#128274; Access Control</div>
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                    <input type="checkbox" id="restrict-check" onchange="toggleRestrict()" style="width:18px;height:18px;accent-color:#38ef7d;">
+                    <label for="restrict-check" style="color:rgba(255,255,255,0.8);font-size:14px;cursor:pointer;">Restrict access to specific names only</label>
+                </div>
+                <div id="restrict-names-section" class="hidden" style="animation:fadeIn 0.3s;">
+                    <label style="display:block;color:rgba(255,255,255,0.6);font-size:13px;margin-bottom:6px;">Allowed names (comma separated):</label>
+                    <input type="text" id="restrict-names" placeholder="e.g. Ali, Ahmed, Sara" oninput="saveRestrict()" style="margin-bottom:8px;">
+                    <span class="info-msg" id="restrict-status" style="font-size:12px;"></span>
+                </div>
+                <style>
+                    @keyframes fadeIn { from { opacity:0;transform:translateY(-8px); } to { opacity:1;transform:translateY(0); } }
+                </style>
+            </div>
         </div>
     </div>
 
@@ -433,6 +450,7 @@
         refreshTimerDisplay();
         refreshLogs();
         updateFriends();
+        loadRestrict();
         window._timerInterval = setInterval(refreshTimerDisplay, 1000);
         window._logsInterval = setInterval(refreshLogs, 3000);
         window._friendsInterval = setInterval(updateFriends, 5000);
@@ -446,6 +464,35 @@
         cancelAutoClose();
         showPage('page-landing');
         startInactivityCheck();
+    }
+
+    // ===== ACCESS CONTROL =====
+    async function loadRestrict() {
+        try {
+            const r = await api('/api/name-restriction');
+            const cb = document.getElementById('restrict-check');
+            cb.checked = r.enabled;
+            document.getElementById('restrict-names-section').classList.toggle('hidden', !r.enabled);
+            document.getElementById('restrict-names').value = (r.names || []).join(', ');
+        } catch {}
+    }
+
+    function toggleRestrict() {
+        const enabled = document.getElementById('restrict-check').checked;
+        document.getElementById('restrict-names-section').classList.toggle('hidden', !enabled);
+        saveRestrict();
+    }
+
+    async function saveRestrict() {
+        const enabled = document.getElementById('restrict-check').checked;
+        const raw = document.getElementById('restrict-names').value;
+        const names = raw.split(',').map(n => n.trim()).filter(Boolean);
+        await api('/api/name-restriction', {
+            method: 'POST',
+            body: JSON.stringify({ enabled, names })
+        });
+        document.getElementById('restrict-status').textContent =
+            enabled ? 'Only allowed: ' + names.join(', ') : 'Access is open to all';
     }
 
     // ===== TIMER =====
@@ -654,13 +701,24 @@
             return;
         }
         document.getElementById('friend-name-error').style.display = 'none';
-        friendName = name;
 
-        await api('/api/logs', {
+        // Check name restriction
+        const resp = await api('/api/logs', {
             method: 'POST',
             body: JSON.stringify({ name, userAgent: navigator.userAgent })
         });
+        if (resp && resp.restricted) {
+            document.getElementById('friend-name-error').textContent = 'Your name is not in the allowed list. Contact the admin.';
+            document.getElementById('friend-name-error').style.display = 'block';
+            return;
+        }
+        if (!resp || !resp.success) {
+            document.getElementById('friend-name-error').textContent = 'Server error. Try again.';
+            document.getElementById('friend-name-error').style.display = 'block';
+            return;
+        }
 
+        friendName = name;
         showFriendResult(name);
     }
 
