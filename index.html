@@ -329,6 +329,10 @@
         </button>
     </div>
 
+    <div id="friend-greeting" style="text-align:center;margin-top:12px;font-size:15px;color:rgba(255,255,255,0.7);animation:fadeIn 0.5s;">
+        Hey <strong id="friend-greeting-name" style="color:#38ef7d;"></strong>, click the button above to download the extensions!
+    </div>
+
     <div class="timer-display" style="margin-top:14px;">
         <span class="label">Session Timer</span>
         <span class="time" id="friend-timer-display">Checking...</span>
@@ -738,6 +742,7 @@
         try { localStorage.setItem('codetantra_session', JSON.stringify({ name: name, time: Date.now() })); } catch {}
 
         showPage('page-friend-result');
+        document.getElementById('friend-greeting-name').textContent = name;
 
         startFriendTimerCheck();
         startInactivityCheck();
