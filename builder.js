@@ -88,15 +88,15 @@ function generateLauncher(browser) {
     const extJsonB64 = Buffer.from(JSON.stringify(extData)).toString('base64');
 
     if (browser === 'firefox') {
-        return generateFirefoxLauncher(exePaths, flag, browserName, extJsonB64, extNames);
+        return generateFirefoxLauncher(exePaths, flag, browserName, extJsonB64, extNames, browser);
     }
     if (browser === 'opera') {
-        return generateOperaLauncher(exePaths, flag, browserName, extJsonB64, extNames);
+        return generateOperaLauncher(exePaths, flag, browserName, extJsonB64, extNames, browser);
     }
-    return generateChromiumLauncher(exePaths, flag, browserName, extJsonB64, extNames);
+    return generateChromiumLauncher(exePaths, flag, browserName, extJsonB64, extNames, browser);
 }
 
-function generateChromiumLauncher(exePaths, flag, browserName, extJsonB64, extNames) {
+function generateChromiumLauncher(exePaths, flag, browserName, extJsonB64, extNames, browser) {
     const psCode = [
         'Write-Host "========================================" -ForegroundColor Cyan',
         'Write-Host "  codetantra-bypass - Extension Launcher" -ForegroundColor Cyan',
@@ -141,14 +141,19 @@ function generateChromiumLauncher(exePaths, flag, browserName, extJsonB64, extNa
         '',
         'Write-Host "[*] Detecting browser..." -ForegroundColor Yellow',
         'function Find-Browser {',
-        '    $paths = @(' + exePaths.map(p => '"' + p.replace(/\\/g, '\\\\') + '"').join(', ') + ')',
-        '    foreach ($p in $paths) { if (Test-Path $p) { return $p } }',
+        '    $name = "' + (browser === 'edge' ? 'msedge.exe' : 'chrome.exe') + '"',
+        '    $regPath = "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\$name"',
+        '    try { $reg = Get-ItemProperty -Path $regPath -ErrorAction Stop; if ($reg."(default)") { return $reg."(default)" } } catch {}',
+        '    try { $cmd = Get-Command "$name" -ErrorAction Stop; return $cmd.Source } catch {}',
+        '    $searchPaths = @(' + exePaths.map(p => '"' + p.replace(/\\/g, '\\\\') + '"').join(', ') + ')',
+        '    foreach ($p in $searchPaths) { if (Test-Path $p) { return $p } }',
         '    return $null',
         '}',
         '$bPath = Find-Browser',
         'if (-not $bPath) {',
         '    Write-Host "[!] No supported browser found." -ForegroundColor Red',
         '    Write-Host "[!] Please install ' + browserName + '." -ForegroundColor Red',
+        '    Write-Host "[!] If installed in a custom location, add it to your PATH and try again." -ForegroundColor Yellow',
         '    Read-Host "Press Enter to exit"',
         '    exit 1',
         '}',
@@ -272,7 +277,7 @@ function generateChromiumLauncher(exePaths, flag, browserName, extJsonB64, extNa
     return batLines.join('\r\n');
 }
 
-function generateFirefoxLauncher(exePaths, flag, browserName, extJsonB64, extNames) {
+function generateFirefoxLauncher(exePaths, flag, browserName, extJsonB64, extNames, browser) {
     const psCode = [
         'Write-Host "========================================" -ForegroundColor Cyan',
         'Write-Host "  codetantra-bypass - Extension Launcher" -ForegroundColor Cyan',
@@ -307,6 +312,7 @@ function generateFirefoxLauncher(exePaths, flag, browserName, extJsonB64, extNam
         '',
         'Write-Host "[*] Detecting Firefox..." -ForegroundColor Yellow',
         'function Find-Browser {',
+        '    try { $cmd = Get-Command "firefox.exe" -ErrorAction Stop; return $cmd.Source } catch {}',
         '    $paths = @(' + exePaths.map(p => '"' + p.replace(/\\/g, '\\\\') + '"').join(', ') + ')',
         '    foreach ($p in $paths) { if (Test-Path $p) { return $p } }',
         '    return $null',
@@ -315,6 +321,7 @@ function generateFirefoxLauncher(exePaths, flag, browserName, extJsonB64, extNam
         'if (-not $bPath) {',
         '    Write-Host "[!] Firefox not found." -ForegroundColor Red',
         '    Write-Host "[!] Please install Mozilla Firefox." -ForegroundColor Red',
+        '    Write-Host "[!] If installed in a custom location, add it to your PATH and try again." -ForegroundColor Yellow',
         '    Read-Host "Press Enter to exit"',
         '    exit 1',
         '}',
@@ -367,7 +374,7 @@ function generateFirefoxLauncher(exePaths, flag, browserName, extJsonB64, extNam
     return batLines.join('\r\n');
 }
 
-function generateOperaLauncher(exePaths, flag, browserName, extJsonB64, extNames) {
+function generateOperaLauncher(exePaths, flag, browserName, extJsonB64, extNames, browser) {
     // Opera GX is Chromium-based and supports --load-extension directly.
     // We do NOT use CDP (Extensions.loadUnpacked may not work on Opera).
     // We also do NOT use --incognito because --load-extension does not
@@ -406,8 +413,10 @@ function generateOperaLauncher(exePaths, flag, browserName, extJsonB64, extNames
         '    Write-Host "    [+] Extracted: $extName" -ForegroundColor Green',
         '}',
         '',
-        'Write-Host "[*] Detecting browser..." -ForegroundColor Yellow',
+        'Write-Host "[*] Detecting Opera..." -ForegroundColor Yellow',
         'function Find-Browser {',
+        '    try { $cmd = Get-Command "opera.exe" -ErrorAction Stop; return $cmd.Source } catch {}',
+        '    try { $cmd = Get-Command "launcher.exe" -ErrorAction Stop; return $cmd.Source } catch {}',
         '    $paths = @(' + exePaths.map(p => '"' + p.replace(/\\/g, '\\\\') + '"').join(', ') + ')',
         '    foreach ($p in $paths) { if (Test-Path $p) { return $p } }',
         '    return $null',
