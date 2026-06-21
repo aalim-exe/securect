@@ -18,7 +18,6 @@ function readData() {
         const defaults = {
             password: 'admin123',
             timerEnd: null,
-            killed: false,
             logs: [],
             users: {},
             sessions: {},
@@ -158,8 +157,7 @@ const router = async (req, res) => {
         const active = data.timerActive || (end !== null && end > Date.now());
         return jsonResponse(res, 200, {
             end, remaining,
-            active: active && !data.killed,
-            killed: !!data.killed,
+            active: active,
             timerEnd: end ? Math.floor(end / 1000) : 0
         });
     }
@@ -186,30 +184,6 @@ const router = async (req, res) => {
         data.timerActive = false;
         writeData(data);
         return jsonResponse(res, 200, { success: true });
-    }
-
-    // --- Kill Switch: Get Status ---
-    if (method === 'GET' && pathname === '/api/kill') {
-        const data = readData();
-        return jsonResponse(res, 200, { killed: !!data.killed });
-    }
-
-    // --- Kill Switch: Toggle ON (kill everything) ---
-    if (method === 'POST' && pathname === '/api/kill') {
-        const data = readData();
-        data.killed = true;
-        data.timerEnd = null;
-        data.timerActive = false;
-        writeData(data);
-        return jsonResponse(res, 200, { success: true, killed: true });
-    }
-
-    // --- Kill Switch: Toggle OFF (revive) ---
-    if (method === 'DELETE' && pathname === '/api/kill') {
-        const data = readData();
-        data.killed = false;
-        writeData(data);
-        return jsonResponse(res, 200, { success: true, killed: false });
     }
 
     // --- Logs: Get ---
