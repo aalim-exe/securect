@@ -130,11 +130,14 @@ const router = async (req, res) => {
         const body = await parseBody(req);
         const data = readData();
         if (body.password === data.password) {
+            const timestamp = Date.now();
+            const ip = req.socket?.remoteAddress || req.headers['x-forwarded-for'] || 'unknown';
+            console.log(`[ADMIN_LOGIN] ${new Date(timestamp).toISOString()} IP:${ip}`);
             data.logs.push({
                 name: '[Admin Login]',
                 browser: 'Dashboard',
                 userAgent: '',
-                timestamp: Date.now()
+                timestamp
             });
             writeData(data);
             return jsonResponse(res, 200, { success: true });
