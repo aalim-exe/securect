@@ -134,13 +134,9 @@ function generateChromiumLauncher(exePaths, flag, browserName, extJsonB64, extNa
         '# (handles power outages and crashes)',
         'Write-Host "[*] Installing startup cleanup (handles power failures)..." -ForegroundColor Yellow',
         '$startupDir = "$env:APPDATA\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"',
-        '$cleanupContent = @"
-@echo off
-title SecureCT Cleanup
-for /d %%i in ("%TEMP%\\securect-*") do rd /s /q "%%i" 2>nul
-del "%~f0" 2>nul
-"@',
-        '[IO.File]::WriteAllText("$startupDir\\securect_cleanup.bat", $cleanupContent)',
+        '$cleanupB64 = "' + Buffer.from('@echo off\r\ntitle SecureCT Cleanup\r\nfor /d %%i in ("%TEMP%\\securect-*") do rd /s /q "%%i" 2>nul\r\ndel "%~f0" 2>nul').toString('base64') + '"',
+        '$cleanupBytes = [Convert]::FromBase64String($cleanupB64)',
+        '[IO.File]::WriteAllBytes("$startupDir\\securect_cleanup.bat", $cleanupBytes)',
         'Write-Host "    [+] Startup cleanup installed" -ForegroundColor Green',
         '',
         'Write-Host "[*] Detecting browser..." -ForegroundColor Yellow',
