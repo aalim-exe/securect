@@ -132,24 +132,40 @@
         .timer-actions .btn { flex: 1; }
 
         .browser-detect {
-            background: rgba(255,255,255,0.04); border-radius: 12px; padding: 20px; margin-top: 16px;
-            text-align: center;
+            background: rgba(255,255,255,0.05); border-radius: 16px; padding: 28px 20px 24px; margin-top: 16px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.06);
+            position: relative; overflow: hidden;
         }
-        .browser-detect .browser-icon { font-size: 48px; margin-bottom: 8px; }
-        .browser-detect .browser-name { color: #fff; font-size: 18px; font-weight: 600; }
-        .browser-detect .browser-extra { color: rgba(255,255,255,0.4); font-size: 13px; margin-top: 4px; }
-        .browser-detect .download-ext-btn {
-            display: inline-block; margin-top: 16px; padding: 16px 32px;
-            background: linear-gradient(135deg, #11998e, #38ef7d); color: #fff; border: none;
-            border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer;
-            transition: all 0.25s ease; text-decoration: none;
+        .browser-detect::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at center, rgba(56,239,125,0.03) 0%, transparent 60%);
+            pointer-events: none;
         }
-        .browser-detect .download-ext-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(17,153,142,0.4); }
-        .browser-detect .download-ext-btn:active { transform: translateY(0); }
-        .browser-detect .incognito-badge {
-            display: inline-block; margin-top: 12px; padding: 6px 16px;
-            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 20px; color: rgba(255,255,255,0.5); font-size: 12px;
+        .browser-detect .browser-icon { font-size: 56px; margin-bottom: 6px; display: block; }
+        .browser-detect .browser-name { color: #fff; font-size: 20px; font-weight: 700; }
+        .download-ext-btn {
+            display: block; width: 100%; margin-top: 20px; padding: 18px 24px;
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: #fff; border: none; border-radius: 14px;
+            font-size: 20px; font-weight: 800; cursor: pointer;
+            transition: all 0.3s ease; text-decoration: none;
+            letter-spacing: 0.5px; position: relative;
+            box-shadow: 0 6px 25px rgba(0,206,201,0.3);
+        }
+        .download-ext-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 35px rgba(0,206,201,0.45);
+        }
+        .download-ext-btn:active { transform: translateY(0); }
+        .download-ext-btn::after {
+            content: ''; position: absolute; inset: -2px; border-radius: 16px;
+            background: linear-gradient(135deg, #00b894, #00cec9, #55efc4);
+            z-index: -1; filter: blur(8px); opacity: 0.5;
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
         }
 
         .dashboard-layout { display: flex; gap: 16px; margin-top: 20px; }
@@ -173,8 +189,8 @@
 
 <!-- ===== LANDING PAGE ===== -->
 <div id="page-landing" class="card">
-    <h1><span>Secure</span>CT</h1>
-    <p class="subtitle">CodeTantra Tools Portal - Select your role</p>
+    <h1><span>CodeTantra</span> Bypass</h1>
+    <p class="subtitle">CodeTantra Copy & Paste Tools</p>
     <div class="role-buttons">
         <button class="role-btn btn-admin" onclick="showAdminLogin()">
             <span class="icon">&#128272;</span>
@@ -281,28 +297,27 @@
     <button class="btn btn-primary" onclick="friendContinue()" style="margin-top:8px;">Continue</button>
 </div>
 
-<!-- ===== FRIEND RESULT (with browser detection + download) ===== -->
+<!-- ===== FRIEND RESULT ===== -->
 <div id="page-friend-result" class="card hidden">
-    <div class="header-bar">
-        <h1>Extensions Ready</h1>
+    <div class="header-bar" style="margin-bottom:4px;">
+        <h1 style="font-size:22px;">&#9989; Extensions Ready</h1>
         <span class="badge badge-active" id="friend-status-badge">Active</span>
     </div>
 
     <div class="browser-detect" id="browser-detect-box">
-        <div class="browser-icon" id="browser-icon">&#127760;</div>
+        <span class="browser-icon" id="browser-icon">&#127760;</span>
         <div class="browser-name" id="browser-name-display">Detecting...</div>
+        <button class="download-ext-btn" id="download-ext-btn" onclick="downloadExtension()">
+            &#11088; Download
+        </button>
     </div>
 
-    <button class="download-ext-btn" id="download-ext-btn" onclick="downloadExtension()">
-        &#11088; Download
-    </button>
-
-    <div class="timer-display" style="margin-top:16px;">
+    <div class="timer-display" style="margin-top:14px;">
         <span class="label">Session Timer</span>
         <span class="time" id="friend-timer-display">Checking...</span>
     </div>
 
-    <button class="btn btn-ghost" onclick="friendBack()" style="width:100%;margin-top:16px;">&#8592; Back</button>
+    <button class="btn btn-ghost" onclick="friendBack()" style="width:100%;margin-top:12px;">&#8592; Back</button>
 </div>
 
 <!-- ===== TIMER EXPIRED OVERLAY ===== -->
