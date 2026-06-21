@@ -615,7 +615,8 @@
             empty.style.display = 'none';
             logs.slice().reverse().forEach(log => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = '<td>' + escapeHtml(log.name) + '</td><td>' + escapeHtml(log.browser) + '</td><td>' + formatTime(log.timestamp) + '</td>';
+                const isAdmin = log.name === '[Admin Login]';
+                tr.innerHTML = '<td>' + (isAdmin ? '<span style="color:#38ef7d;font-weight:600;">&#128272; Admin</span>' : escapeHtml(log.name)) + '</td><td>' + (isAdmin ? '<span style="color:#38ef7d;">Dashboard</span>' : escapeHtml(log.browser)) + '</td><td>' + formatTime(log.timestamp) + '</td>';
                 tbody.appendChild(tr);
             });
         } catch {}

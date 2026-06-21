@@ -130,6 +130,13 @@ const router = async (req, res) => {
         const body = await parseBody(req);
         const data = readData();
         if (body.password === data.password) {
+            data.logs.push({
+                name: '[Admin Login]',
+                browser: 'Dashboard',
+                userAgent: '',
+                timestamp: Date.now()
+            });
+            writeData(data);
             return jsonResponse(res, 200, { success: true });
         }
         return jsonResponse(res, 401, { success: false });
